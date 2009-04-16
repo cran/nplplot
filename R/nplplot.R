@@ -63,7 +63,7 @@ nplplot<-function(files, col=2, row=2, mode="p", output="screen",
     page.height<-9.0*2.54;
     full.width<-7.5;
     full.height<-10.5;
-    landscape<-F;
+    landscape<-FALSE;
   }
   else {
     page.width<-9.0*2.54;
@@ -87,7 +87,7 @@ nplplot<-function(files, col=2, row=2, mode="p", output="screen",
   }
 
   if(output == "screen") {
-    x11(width=full.width, height=full.height);
+#    x11(width=full.width, height=full.height);
 #     par(omi=c(0.05, 0.05, 0.05, 0.05),pin=c(pl.wd, pl.ht), 
     par(mfrow = c(row, col), ask=FALSE);
   }
@@ -146,10 +146,10 @@ nplplot<-function(files, col=2, row=2, mode="p", output="screen",
       }
       if(length(leg1) == 0) {
         print(paste("Empty header file ", headerfiles[i]));
-        return(F);
+        return(FALSE);
       }
       skip.header<-1;
-      read.header<-F;
+      read.header<-FALSE;
       leg<-leg1[3:length(leg1)];
     }
     else {
@@ -160,24 +160,23 @@ nplplot<-function(files, col=2, row=2, mode="p", output="screen",
     tmp<-scan(file.names[i], what="string");
     if(length(tmp)==0) {
       print(paste("File ", file.names[i], "is empty!"));
-      return(F);
+      return(FALSE);
     }
     lods<-read.table(file.names[i], header=read.header, skip=skip.header, sep="",
                      na.strings=c("NA", "."));
     if(ncol(lods) <= 2) {
       print(paste("File ", file.names[i], "does not have any data."));
-      return(F);
+      return(FALSE);
     }
     attach(lods);
 
-    if(read.header == T) {
-      leg <- names(lods);
+    rows <- dim(lods)[1];
+    cols <- dim(lods)[2];
+    if(read.header == TRUE) {
+      leg <- names(lods)[3:cols];
       # unlist(strsplit(as.character(names(lods)[k]), "\\.")); 
       # leg[k-2] <- paste(leg1[1], "-", leg1[2]);
     }
-
-    rows <- dim(lods)[1];
-    cols <- dim(lods)[2];
     dist <- lods[1:(rows-2), 2];
     ydatamax <- max(lods[1:(rows-2), 3:cols], na.rm=TRUE);
     ydatamin <- min(lods[1:(rows-2), 3:cols], na.rm=TRUE);
@@ -235,18 +234,17 @@ nplplot<-function(files, col=2, row=2, mode="p", output="screen",
       title(sub=maint, line=2);
     }
     for (k in 3:cols) {
-      if(!bw) {
+      scores<-get(names(lods)[k]);
+      ch <- scores[rows];
+      lt <- scores[rows-1];
+      if(bw == FALSE) {
         # cycle through the first 6 colors
-        color = ((k-3) %% 5) + 1;
+        color = (k-3 %% 5) + 1;
       }
       else {
         # 7th color is black
         color=7;
       }
-      scores<-get(names(lods)[k]);
-      ch <- scores[rows];
-      lt <- scores[rows-1];
-
       this.x<-dist[1:(rows-2)];
       this.y<-scores[1:(rows-2)];
 
@@ -330,7 +328,7 @@ nplplot<-function(files, col=2, row=2, mode="p", output="screen",
         lgy <- ymin1 + 0.9*(ymax1 - ymin1)
       }
 
-      if (bw == F) {
+      if (bw == FALSE) {
         leg.color<- my.colors[1:(ncol(lods)-2)];
       }
       else {
@@ -345,11 +343,11 @@ nplplot<-function(files, col=2, row=2, mode="p", output="screen",
       
     if(output == "screen") {
       if((i %% (col*row)) == 0) {
-        par(ask = T);
+        par(ask = TRUE);
       }
     }
   }
-  if(batch == TRUE) {
+  if(batch == TRUE && output != "screen") {
     dev.off(dev.list());
   }
 }

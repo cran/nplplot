@@ -1,20 +1,23 @@
-\name{nplplot ver 3.0 rev 10}
+\name{nplplot}
 \alias{nplplot}
-\title{Non-parametric LOD score plotting}
+\title{LOD score plotting}
 \description{
-Plots linkage score curves contained within one or more
-specified linkage analysis results files. Usually these
-results would be LOD scores, p-values, or log10(p-values).
+Plots score curves contained within one or more
+specified results files. Usually these results would be 
+LOD scores, p-values, or log10(p-values). This is targetted
+towards p-values or LOD scores obtained at various marker positions
+from statistical analysis of genetic data.
 
-A linkage results file has to be in a specific format with the
-following three components:
+A results file has to be in a specific tabular format with
+each column separated by white-space :
 
-A) First line = header line
+A) First line = header line                                      
+
 B) Next set of lines = any number of data lines
-C) Final two lines = line type & point type definition lines.
+
+C) Final two lines = line type & point type definition.
 
 Here is an example:
-
 \preformatted{
 marker   location        score1  score2 score3      
 d1s228   0.00            0.546   0.345  0.142                    
@@ -24,26 +27,27 @@ ltype    -99.99              1       2      3
 ptype    -99.99             15      16     17                  
 }
 
-In this example, component A (the header line) is line1, component B
-consists of lines 2-4; and component C (defining the line types & point
-types) are the final two lines.
+In this example, line 1 column headers for the score columns
+may be used as labels within the legend, as described in the 
+usage of the "headerfile" argument. \bold{The first two headers 
+are ignored.}
 
-There can be any number of score columns within a file. Each column is
-separated by white-space. The score columns within each file are
-plotted inside the same plot. Each file is plotted as a separate
-plot. Missing data in the \bold{score} columns can be denoted with either
-"." or "NA". Missing labels in the \bold{marker} column can be denoted by a
-"-".
+Lines 2-4 contain scores at various marker positions. \bold{Missing
+scores can be denoted with either "." or "NA"}. The position column
+cannot have missing data. There can be any number of score columns
+within a file and will be plotted as separate curves within the same
+plot.  Each file is plotted as as separate plot.
 
-The last two lines in this example refer to line type and point type
-respectively. Both lines are necessary for nplplot to work correctly.
-Setting "ltype" or "ptype" values to 0 prevents plotting curves and
-points respectively.
-
-Alternate plotting symbols can be selected by changing ptype and ltype
-values in the score columns. For allowable ptype values, consult the R
+The last two lines give line types and point types for each curve. A
+zero line or point type will not plot lines or points for that score
+column respectively. For allowable ptype values, consult the R
 documentation for "points". For line types, consult the documentation
-on "par". }
+on "par".
+
+The names in the first column are used as axis labels on the top of
+the plot border. Setting a name in the \bold{marker} column to "-"
+will result in no label at that position.}
+
 \usage{
   nplplot(files, col=2, row=2, mode="p", output="screen", 
           yline=2.0, ymin=NULL, ymax=NULL, yfix=FALSE, batch=FALSE, 
@@ -54,16 +58,23 @@ on "par". }
   \item{files}{List of files names (strings). Each file produces a
     separate plot.}
   
-  \item{col}{For multiple plots on a page of postscript output,
-    number of columns of plots, integer >= 1, defaults to 2.}
-  \item{row}{For multiple plots on a page of postscript output,
-    number of rows of plots, integer >= 1, defaults to 2. }
-  \item{mode}{Orientation for postscript output,
+  \item{col}{For multiple plots on a single page of pdf or postscript
+    output, this item defines the number of columns of plots, and should
+    be an integer greater than or equal to 1. Default is set to 2.}
+  
+  \item{row}{For multiple plots on a page of pdf or postscript output,
+    this defines the number of rows of plots, (value should be 1 or
+    greater). Default value is set to 2. }
+  
+  \item{mode}{Orientation for pdf or postscript output,
     "p" for portrait
-    "l" for landscape    }
+    "l" for landscape.    }
   
   \item{output}{File name for saving plots; "screen", the default
-    causes the plots to  be displayed on the screen.}
+    causes the plots to  be displayed on the screen. To produce a pdf
+    file use the extension .pdf. To produce a postscript file, use the
+    .ps file name extension. If no extension is given a pdf file is
+    produced. } 
 
   \item{yline}{Y-value for displaying a horizontal cut-off line. }
 
@@ -86,7 +97,7 @@ on "par". }
     specified above. Each header-file contains a string with column
     names corresponding to the columns in the data file. These column
     names are used in the plot legend. 
-    If set to NULL (the default), nplplot tries to use the first item in 
+    If set to NULL (the default), nplplot uses the first item in 
     each column of a data file as plot legend.
     If a headerfile is provided, then nplplot will attempt to read in
     the first line of the datafile as data, so the user should be
@@ -113,24 +124,26 @@ on "par". }
     be used to position the legend. Default NULL.}
 
   \item{bw}{TRUE or FALSE depending on whether plots should be
-    drawn in color. A list of colors are defined within nplplot. Then ltype
-    values are used as indices into the list of color. These are
-    1-magenta, 2-lightblue, 3-grey, 4=navyblue, 5-lightcyan, 6-pink,
-    7-black. }
-  \item{na.rm} {TRUE or FALSE depending on whether NAs should be removed
+    drawn in color. A list of six colors are defined within nplplot,
+    which are successively used to draw each curve, and reused as
+    necessary. The order in which these colors are used is:
+    magenta, lightblue, grey, navyblue, lightcyan and pink.
+    The 7th color, reserved for black and white plots is black. }
+    
+  \item{na.rm}{TRUE or FALSE depending on whether NAs should be removed
     prior to plotting the data. Including NAs will produce broken plots,
     when lines are drawn. This may be desirable in some cases, if
-    missing data needs to be reported.
-  }
+    missing data needs to be reported. }
+
 }
 \value{TRUE or FALSE depending on whether the input files were read 
-	in successfully. }
+  in successfully. }
 \details{
   None.
 }
 \examples{
 \dontrun{nplplot("lod.1", output="lod.1.ps", batch=T, headerfiles="hdr.1")}
-\dontrun{nplplot(c("lod.1, lod.2"), col=1, row=2, headerfiles=c("hdr.1,hdr.2"))}
+\dontrun{nplplot(c("lod.1", "lod.2"), col=1, row=2, headerfiles=c("hdr.1","hdr.2"))}
 }
 \keyword{hplot}
 
