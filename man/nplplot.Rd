@@ -1,21 +1,115 @@
 \name{nplplot}
 \alias{nplplot}
-\title{LOD score plotting}
-\description{
-Plots score curves contained within one or more
-specified results files. Usually these results would be 
-LOD scores, p-values, or log10(p-values). This is targetted
-towards p-values or LOD scores obtained at various marker positions
-from statistical analysis of genetic data.
+\title{Plotting statistics along a chromosome}
+\description{Plots linkage or association statistics along a chromosome,
+  contained within a data frame or a file. Marker names are displayed
+  along the top border.}
+\usage{nplplot(plotdata=NULL, filename=NULL, yline=2.0, ymin=0, ymax=3.0,
+         header=TRUE, yfix=FALSE, title=NULL, draw.lgnd=TRUE,
+         xlabl="", ylabl="", lgndx=NULL, lgndy=NULL, lgndtxt=NULL,
+         cex.legend = 0.7, cex.axis=0.7, tcl=1,
+         bw=TRUE, my.colors=NULL, ltypes=NULL, ptypes=NULL,
+         na.rm=TRUE, plot.width=0.0, ...) }
+
+\arguments{
+  \item{plotdata}{ A data frame containing marker names in the
+  first column, marker map positions in the second column, and
+  statistical scores in column 3 onwards. }
+
+  \item{filename}{ A table format file containing the plot
+  data as described above. }
+
+  \item{header}{ TRUE or FALSE depending on whether the plotdata
+  or file has a header line. }
+
+  \item{yline}{ Y-value for displaying a horizontal cut-off
+  line. If y-fix is set to TRUE and Y-line falls outside of \code{ymin,
+  ymax}, then the cut-off line is omitted. }
+
+  \item{ymin, ymax}{ Y-axis minimum and maximum values. If non-NULL
+    values are provided, and \code{yfix} is set to TRUE, then the plot
+    area will be cropped to these values. If \code{yfix} is set to
+    FALSE, then \code{ymin} and \code{ymax} values are ignored. }
+
+  \item{yfix}{ TRUE or FALSE to denote whether plot area should be
+  cropped to the \code{ymin, ymax} values. This has no effect if
+  \code{ymin, ymax} values are NULL. }
+
+  \item{title}{ Used as the subtitle of the plot.}
+
+  \item{xlabl}{ X-axis label. May interfere with the display of
+    the subtitle provided as the \code{title} argument. }
+
+  \item{ylabl}{ Y-axis label.}
+
+  \item{draw.lgnd}{ TRUE or FALSE denoting whether a plot legend
+  should be displayed. }
+
+  \item{lgndx}{ X coordinate for the legend box, passed to the
+  \code{\link{legend}} command. Ignored if \code{draw.legend}
+  is set to FALSE. If set to NULL with \code{draw.legend} set to TRUE,
+  an X-coordinate is automatically calculated. }
+
+  \item{lgndy}{ Y coordinate for the legend box, passed to the
+  \code{\link{legend}} command. Ignored if \code{draw.legend}
+  is set to FALSE. If set to NULL with \code{draw.legend} set to TRUE,
+  an Y-coordinate is automatically calculated. }
+
+  \item{lgndtxt}{ Vector of strings to use in the legend. }
+
+  \item{cex.legend}{ Character scaling for legend, passed as the
+  \code{cex} argument to the  \code{\link{legend}} command. }
+
+  \item{cex.axis}{ Character scaling for the axis, passed to the
+  \code{\link{axis}} command for drawing the top border. }
+
+  \item{tcl}{ Length of ticks for the top border, passed to the
+  \code{\link{axis}} command. }
+
+  \item{bw}{ TRUE or FALSE depending on whether plots should be
+  drawn in color. If set to FALSE, then the colors defined by
+  \code{my.colors} are used. }
+
+  \item{my.colors}{ Vector of color specifications as described
+  in the \code{\link{par}} command. Ignored if \code{bw} above
+  is set to FALSE. If \code{bw} is to TRUE and my.colors is set to
+  NULL, the \code{\link{rainbow}} palette will be used. }
+
+  \item{ltypes}{ Vector of line types for the plots. Each
+  non-zero line type is passed on to a \code{lines} command. Use 0 or
+  'none' if a line is to be skipped. If NULL, no lines will be
+  drawn. For line types see the \code{\link{par}} command. If set to
+  "default", line-types 1 through the number of plots is used. }
+
+  \item{ptypes}{ Vector of characters giving the point
+  types, to be passed onto the \code{points} command. Use 'none' if no
+  points are to be drawn for a score column. If NULL, no points will
+  be displayed. If both the line-type and point-type specification for
+  a results column is set to 'none', that column will not be plotted. }
+
+  \item{na.rm}{ TRUE or FALSE depending on whether points with
+  Y-coordinates set to NAs should be skipped. Setting \code{na.rm} to
+  TRUE eliminates discontinuities in the plots. }
+
+  \item{plot.width}{ A number giving the width of the plot in
+  inches. This is used to decide whether some marker names should be
+  dynamically hidden, if they are too close to each other along the top
+  border. If set to 0, the default page-size is used to set the width. }
+
+  \item{...}{ Further graphical parameters to be passed onto the
+  'plot', 'lines' and 'points' commands. }
+}
+
+\details{ The nplplot function draws multiple curves within a single
+plot by automatically calling 'plot', 'lines', and 'points' multiple
+times, thus making it easy for the user to plot many columns of results
+using a single plot command. It is intended for the display of linkage
+and association analysis results such as LOD scores and P-values. It
+allows the marker names to be displayed along the top border of the
+plot, as well as a significance threshold line.
 
 A results file has to be in a specific tabular format with
 each column separated by white-space :
-
-A) First line = header line                                      
-
-B) Next set of lines = any number of data lines
-
-C) Final two lines = line type & point type definition.
 
 Here is an example:
 \preformatted{
@@ -23,129 +117,40 @@ marker   location        score1  score2 score3
 d1s228   0.00            0.546   0.345  0.142                    
 d1s429   1.00            0.346   0.335  0.252       
 d1s347   2.00            0.446   0.245  0.342                    
-ltype    -99.99              1       2      3       
-ptype    -99.99             15      16     17                  
 }
-
-In this example, line 1 column headers for the score columns
-may be used as labels within the legend, as described in the 
-usage of the "headerfile" argument. \bold{The first two headers 
-are ignored.}
+This file contains a header, therefore the \code{header} argument should
+be set to TRUE.
 
 Lines 2-4 contain scores at various marker positions. \bold{Missing
 scores can be denoted with either "." or "NA"}. The position column
 cannot have missing data. There can be any number of score columns
 within a file and will be plotted as separate curves within the same
-plot.  Each file is plotted as as separate plot.
-
-The last two lines give line types and point types for each curve. A
-zero line or point type will not plot lines or points for that score
-column respectively. For allowable ptype values, consult the R
-documentation for "points". For line types, consult the documentation
-on "par".
-
-The names in the first column are used as axis labels on the top of
-the plot border. Setting a name in the \bold{marker} column to "-"
-will result in no label at that position.}
-
-\usage{
-  nplplot(files, col=2, row=2, mode="p", output="screen", 
-          yline=2.0, ymin=NULL, ymax=NULL, yfix=FALSE, batch=FALSE, 
-          headerfiles=NULL, titles=NULL, xlabl="", ylabl="", 
-          lgnd="page", lgndx=NULL, lgndy=NULL, bw=TRUE, na.rm=TRUE)
+plot.  Each file is plotted as a separate plot.
 }
-\arguments{
-  \item{files}{List of files names (strings). Each file produces a
-    separate plot.}
-  
-  \item{col}{For multiple plots on a single page of pdf or postscript
-    output, this item defines the number of columns of plots, and should
-    be an integer greater than or equal to 1. Default is set to 2.}
-  
-  \item{row}{For multiple plots on a page of pdf or postscript output,
-    this defines the number of rows of plots, (value should be 1 or
-    greater). Default value is set to 2. }
-  
-  \item{mode}{Orientation for pdf or postscript output,
-    "p" for portrait
-    "l" for landscape.    }
-  
-  \item{output}{File name for saving plots; "screen", the default
-    causes the plots to  be displayed on the screen. To produce a pdf
-    file use the extension .pdf. To produce a postscript file, use the
-    .ps file name extension. If no extension is given a pdf file is
-    produced. } 
 
-  \item{yline}{Y-value for displaying a horizontal cut-off line. }
+\value{TRUE or FALSE depending on whether the plot data was successfully
+  plotted.}
 
-  \item{ymin, ymax}{Y-axis minimum and maximum values with
-    default values NULL. If non-NULL values are provided, then the
-    plot area will be cropped to fit these values. Setting either of
-    these values to NULL will enable plots to be expanded to fit the
-    minimum and maximum y-values in the data files respectively.
-  }
-  \item{yfix}{Set to TRUE or FALSE depending on whether ymin and ymax
-    should be enforced across all plots irrespective of whether the plot
-    data lie within these bounds. Ignored if ymin or ymax are set to
-    NULL.}
-  
-  \item{batch}{TRUE or FALSE, to determine whether the display
-    screen should be closed. If nplplot is called within R, this should 
-    be set to FALSE.}
+\seealso{\code{\link{nplplot.multi}, \link{nplplot.old}}}
 
-  \item{headerfiles}{ List of file names, one for each data file
-    specified above. Each header-file contains a string with column
-    names corresponding to the columns in the data file. These column
-    names are used in the plot legend. 
-    If set to NULL (the default), nplplot uses the first item in 
-    each column of a data file as plot legend.
-    If a headerfile is provided, then nplplot will attempt to read in
-    the first line of the datafile as data, so the user should be
-    careful not to put in a headerline as well as a headerfile.}
-    
-  \item{titles}{Array of strings denoting titles for each plot.
-    If there are not enough titles, the last string is recycled for the
-    remaining plots. Default is an empty string.}
-
-  \item{xlabl}{Array of strings, to use as the x-axis label on 
-    each plot.}
-
-  \item{ylabl}{Array of strings to use as the y-axis label on 
-    each plot.}
-
-  \item{lgnd}{TRUE, FALSE, "page" or a list of plot numbers denoting whether
-    the legend should be drawn in all plots, none, first plot on a page,
-    or specific plot numbers. Default "page"}
-
-  \item{lgndx}{NULL or a real value if a specific x-coordinate should
-    be used to position the legend. Default NULL.}
-
-  \item{lgndy}{NULL or a real value if a specific y-coordinate should
-    be used to position the legend. Default NULL.}
-
-  \item{bw}{TRUE or FALSE depending on whether plots should be
-    drawn in color. A list of six colors are defined within nplplot,
-    which are successively used to draw each curve, and reused as
-    necessary. The order in which these colors are used is:
-    magenta, lightblue, grey, navyblue, lightcyan and pink.
-    The 7th color, reserved for black and white plots is black. }
-    
-  \item{na.rm}{TRUE or FALSE depending on whether NAs should be removed
-    prior to plotting the data. Including NAs will produce broken plots,
-    when lines are drawn. This may be desirable in some cases, if
-    missing data needs to be reported. }
-
-}
-\value{TRUE or FALSE depending on whether the input files were read 
-  in successfully. }
-\details{
-  None.
-}
 \examples{
-\dontrun{nplplot("lod.1", output="lod.1.ps", batch=T, headerfiles="hdr.1")}
-\dontrun{nplplot(c("lod.1", "lod.2"), col=1, row=2, headerfiles=c("hdr.1","hdr.2"))}
+# plot with legend
+par(omi=c(0.05, 0.05, 0.5, 0.05))
+data(lods1, package="nplplot")
+nplplot(plotdata=lods1, draw.lgnd=TRUE)
+
+# plot without legend
+data(lods2, package="nplplot")
+nplplot(plotdata=lods2, draw.lgnd=FALSE)
+
+# plotting from a data file
+
+datadir <- paste(system.file("data", package="nplplot"),
+.Platform$file.sep, sep="")
+nplplot(filename=paste(datadir, "lods2.txt", sep=""))
+
 }
 \keyword{hplot}
 
 
-%  LocalWords:  ymin ymax nplplot headerfiles headerfile headerline
+%  LocalWords:  lgndtxt

@@ -1,17 +1,18 @@
 Package: nplplot
-Version: 4.2
-Date: 2009-04-16
-Title: Plotting non-parametric LOD scores from multiple input files
+Version: 4.3
+Date: 2009-06-16
+Title: Plotting non-parametric linkage results
 Author: Nandita Mukhopadhyay <nandita@pitt.edu>, Daniel E. Weeks
-        <dweeks@pitt.edu>
+        <weeks+@pitt.edu>, Xinyu Tang <xit11+@pitt.edu>
 Maintainer: Nandita Mukhopadhyay <nandita@pitt.edu>
-Description: This package consists of one function nplplot which takes
-        an non-parametric linkage analysis results file containing a
-        table with marker names, positions and one or more linkage
-        score columns. For a detailed description of this function, use
-        the help() command within R.
-License: GPL-2
+Description: nplplot: Plots curves for non parametric linkage results
+        contained within a file or a table; nplplot.multi: wrapper
+        function for nplplot to graph multiple plot-data files, and
+        save these in PDF or postscript format; nplplot.old: the old
+        nplplot function that combined nplplot and nplplot.multi into
+        one function, please use the other two functions instead.
+License: GPL (>= 2)
 URL: http://www.r-project.org, http://watson.hgen.pitt.edu/register
-Packaged: Thu Apr 16 06:56:22 2009; nandita
+Packaged: Tue Jun 16 10:46:04 2009; nandita
 Repository: CRAN
-Date/Publication: 2009-04-16 12:28:47
+Date/Publication: 2009-06-16 15:21:28

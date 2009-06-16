@@ -1,1 +1,10 @@
-nplplot                 Mega2 utility for plotting SimWalk2, Merlin and Allegro LOD scores
+bedplot                 Creation of BED and BedGraph custom tracks
+genomeplot              Creation of Genome Graph files
+lods1                   LOD score table for chromosome 1
+lods2                   LOD score table for chromosome 1
+nplplot                 Plotting statistics along a chromosome
+nplplot.multi           Plotting linkage or association statistics for
+                        multiple results files
+nplplot.old             LOD score plotting (old version of nplplot)
+prepareplot             Prepare input data files for bedplot and
+                        genomeplot

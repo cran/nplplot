@@ -1,5 +1,5 @@
 #   Mega2: Manipulation Environment for Genetic Analysis
-#   Copyright (C) 1999-2008 Nandita Mukhopadhyay, Lee Almasy,
+#   Copyright (C) 1999-2009 Nandita Mukhopadhyay, Lee Almasy,
 #            Mark Schroeder, William P. Mulvihill, Daniel E. Weeks
 #  
 #   This file is part of the Mega2 program, which is free software; you
@@ -23,332 +23,530 @@
 #       or
 #       Daniel E. Weeks
 #       e-mail: weeks@pitt.edu
-#  
+# 
+# ===========================================================================
 #NPL plot R package
-nplplot<-function(files, col=2, row=2, mode="p", output="screen", 
-                  yline=2.0, ymin=NULL, ymax=NULL, yfix=FALSE, batch=FALSE,
-                  headerfiles=NULL,  titles=NULL,
-                  xlabl="", ylabl="", lgnd="page", lgndx=NULL, lgndy=NULL,
-                  bw=TRUE, na.rm=TRUE)
+
+## ltypes  = should be 1 to the number of statistics
+
+## bw=TRUE
+
+## bw=TRUE, plot.width=par()$pin[1]
+
+## ymax=3
+## ymin=0
+## yfix=F
+
+## draw.lgnd=T
+
+nplplot<-function(plotdata=NULL, filename=NULL, yline=2.0, ymin=0, ymax=3.0,
+                  header=TRUE, yfix=FALSE, title=NULL, draw.lgnd=TRUE,
+                  xlabl="", ylabl="", lgndx=NULL, lgndy=NULL, lgndtxt=NULL,
+                  cex.legend = 0.7, cex.axis=0.7, tcl=1,
+                  bw=TRUE, my.colors=NULL, ltypes=NULL, ptypes=NULL,
+                  na.rm=TRUE, plot.width=0, ...)
 {
 
-#   my.colors<-c("magenta", "navyblue", "green", "lightblue", "grey", "pink",
-#                "black");
-#   if (length(files) < 3) {
-#     row = 1;
-#   }
-#   if (length(files) < 2) {
-#     col = 1;
-#   }
-  my.colors<-c("red", "navyblue", "green", "lightblue", "grey", "pink",
-               "black");
   
-  if(batch == FALSE) {
-    old.par <- par(no.readonly = TRUE);
-    if(output == "screen") {
-      on.exit(par(old.par));
-    }
-    else {
-      on.exit(par(old.par), add=TRUE);
-      on.exit(dev.off(dev.list()));
-    }
-  }
-
-  numfiles<-length(files);
+  leg = NULL; ltys = NULL; pchs = NULL
   
-  # page size in inches
-  
-  if(mode=="p") {
-    page.width<-7.0*2.54;
-    page.height<-9.0*2.54;
-    full.width<-7.5;
-    full.height<-10.5;
-    landscape<-FALSE;
-  }
-  else {
-    page.width<-9.0*2.54;
-    page.height<-7.0*2.54;
-    full.width<-10.5;
-    full.height<-7.5;
-    landscape<-T;
-  }
-
-  plot.width<-array(page.width/col, col);
-  plot.height<-array(page.height/row, row);
-  
-  plots.inpage<-col*row;
-  file.names<-as.character(files);
-  
-  pl.wd <- (plot.width[1]-2.0)/2.54;
-  pl.ht <- (plot.height[1]-2.0)/2.54;
-
-  if(batch == FALSE) {
-    dev.off(dev.list());
-  }
-
-  if(output == "screen") {
-#    x11(width=full.width, height=full.height);
-#     par(omi=c(0.05, 0.05, 0.05, 0.05),pin=c(pl.wd, pl.ht), 
-    par(mfrow = c(row, col), ask=FALSE);
-  }
-  else {
-    output1 <- output;
-    fileparts <- unlist(strsplit(output1, "\\."));
-    if (fileparts[length(fileparts)] == "ps") {
-      print("Creating postscript file");
-      postscript(width=full.width, height=full.height,
-                 file=output, paper="letter", horizontal=landscape);
-    }
-    else {
-      print("Creating pdf file");
-#      print(c(full.width, full.height));
-      pdf(width=full.width, height=full.height,
-          file=output, paper="special");
-    }
-#     par(omi=c(0.1, 0.1, 0.5, 0.1),
-#         mfrow = c(row, col), pin=c(pl.wd, pl.ht), ask=FALSE);
-    par(mfrow = c(row, col), ask=FALSE);
-#    mai=c(0.25, 0.25, 0.7, 0.1),pin=c(pl.wd, pl.ht),
-  }
-
-  # for each file
-   for (i in 1:numfiles) {
-    # for each curve
-    leg = NULL; ltys = NULL; pchs = NULL;
-    # use a plot command instead of abline to set plot parameters
-
-    # If the user has supplied titles, then use them.
-    # There should be as many as there are files (number of plots).
-    # If there are fewer titles, recycle the last one.
+  # use a plot command instead of abline to set plot parameters
+  # If the user has supplied titles, then use them.
+  # There should be as many as there are files (number of plots).
+  # If there are fewer titles, recycle the last one.
     
-    if(!is.null(titles)) {
-      if(i <= length(titles)) {
-        ititl<- i;
-      }
-      else {
-        ititl<-length(titles);
-      }
-      maint <- as.character(titles[ititl]);
-    }
+  if(!is.null(title)) {
+    maint <- title
+  }
+  
+  # Figure out how the data has been supplied
 
-    # If the user has supplied headerfiles, then read in a
-    # line from each file as header
-    # There should be as many header files as there are data files
-    # (number of plots). If there are fewer header files, recycle
-    # the last one.
+  if (is.null(plotdata) && is.null(filename)) {
+    print("Both plotdata and file are NULL, no data to plot!")
+    return(F);
+  }
 
-    if(!is.null(headerfiles)) {
-      if(i <= length(headerfiles)) {
-        leg1<-scan(headerfiles[i], what="string");
-      }
-      else {
-        leg1<-scan(headerfiles[length(headerfiles)], what="string");
-      }
-      if(length(leg1) == 0) {
-        print(paste("Empty header file ", headerfiles[i]));
-        return(FALSE);
-      }
-      skip.header<-1;
-      read.header<-FALSE;
-      leg<-leg1[3:length(leg1)];
-    }
-    else {
-      skip.header<-0;
-      read.header<-T;
-    }
-
-    tmp<-scan(file.names[i], what="string");
-    if(length(tmp)==0) {
-      print(paste("File ", file.names[i], "is empty!"));
-      return(FALSE);
-    }
-    lods<-read.table(file.names[i], header=read.header, skip=skip.header, sep="",
-                     na.strings=c("NA", "."));
+  if (!is.null(plotdata) && !is.null(filename)) {
+    print("Both plotdata and file are specified, using plotdata.")
+  }
+  
+  if (!is.null(plotdata)) {
+    lods <- plotdata
+    print("lods read in as table")
+    
     if(ncol(lods) <= 2) {
-      print(paste("File ", file.names[i], "does not have any data."));
-      return(FALSE);
+      print(paste("plotdata does not have any data."));
+      return(F)
     }
-    attach(lods);
-
-    rows <- dim(lods)[1];
-    cols <- dim(lods)[2];
-    if(read.header == TRUE) {
-      leg <- names(lods)[3:cols];
-      # unlist(strsplit(as.character(names(lods)[k]), "\\.")); 
-      # leg[k-2] <- paste(leg1[1], "-", leg1[2]);
-    }
-    dist <- lods[1:(rows-2), 2];
-    ydatamax <- max(lods[1:(rows-2), 3:cols], na.rm=TRUE);
-    ydatamin <- min(lods[1:(rows-2), 3:cols], na.rm=TRUE);
-
-    xdatamin <- min(dist, na.rm=TRUE);
-    #xdatamin <- max(0, xdatamin - 5);
-
-    xdatamax <- max(dist, na.rm=TRUE);
-    
-    if(is.null(ymax)) {
-      ymax1 <- ydatamax + 0.2;
-    }
-    else {
-      if (yfix == TRUE) {
-        ymax1 <- ymax;
-      }
-      else {
-        ymax1 <- max(ydatamax, ymax);
-      }
-    }
-    if(is.null(ymin)) {
-      ymin1 <- ydatamin - 0.1;
-    }
-    else {
-      if (yfix == TRUE) {
-        ymin1 <- ymin;
-      }
-      else {
-        ymin1 <- min(ymin, ydatamin);
-      }
-    }
-    if(yline > ymax1) {
-      yline <- 0.0;
-    }
-
-    if(yline == 0.0) {
-      plot(c(xdatamin, xdatamax), c(yline, yline), type="l", col="white",
-           lty=1,
-           xlab=xlabl, ylab=ylabl, xlim=c(xdatamin, xdatamax),xpd=FALSE,
-           ylim=c(ymin1, ymax1),
-           tcl=-0.3, cex.axis=0.9);
-    }
-    else {
-      plot(c(xdatamin, xdatamax), c(yline, yline), type="l", col="grey40",
-           lty=1,
-           xlab=xlabl, ylab=ylabl, xlim=c(xdatamin, xdatamax),xpd=FALSE,
-           ylim=c(ymin1, ymax1),
-           tcl=-0.3, cex.axis=0.9);
-    }
-      
-    if(ymax1 < 0.0) {
-      abline(h=0.0, col = "grey72");
-    }
-    if(!is.null(titles)) {
-      title(sub=maint, line=2);
-    }
-    for (k in 3:cols) {
-      scores<-get(names(lods)[k]);
-      ch <- scores[rows];
-      lt <- scores[rows-1];
-      if(bw == FALSE) {
-        # cycle through the first 6 colors
-        color = (k-3 %% 5) + 1;
-      }
-      else {
-        # 7th color is black
-        color=7;
-      }
-      this.x<-dist[1:(rows-2)];
-      this.y<-scores[1:(rows-2)];
-
-      if (na.rm) {
-        this.x <- this.x[!is.na(this.y)];
-        this.y <- this.y[!is.na(this.y)];
-      }
-      if(lt == 0 && ch > 0) {
-        points(this.x, this.y, pch = ch, col=my.colors[color]);
-        pchs[k-2] <- ch;
-        ltys[k-2] <- lt;
-      }
-      if(lt > 0 && ch == 0) {
-        lines(this.x, this.y, type = "l", lty = lt,
-              xaxt="n", yaxt="n", col=my.colors[color]);
-        pchs[k-2] = " ";
-        ltys[k-2] = lt;
-      }
-      if(lt > 0 && ch > 0) {
-        lines(this.x, this.y, type="b", lty = lt, pch=ch,
-              xaxt="n", yaxt="n", col=my.colors[color]);
-        pchs[k-2] <- ch;
-        ltys[k-2] <- lt;
-      }
-      
-      if(ch == 0 && lt == 0) {
-        print("Skipping this line");
-      }
-    }
-    markers<-as.character(lods[1:(rows-2),1]);
-
-    # check if too markers are very close together
-    lbl<-markers[markers != "-"];
-    lloc<-dist[markers != "-"];
-    
-    last.pos<-lloc[1]/(lloc[length(lloc)]-lloc[1]) * pl.wd;
-    for (j in 2:length(lloc)) {
-      diff<-lloc[j]/(lloc[length(lloc)]-lloc[1]) * pl.wd - last.pos;
-      if(diff < 0.1) {
-        lbl[j]<- "    ";
-      }
-      else {
-        last.pos<-last.pos+diff;
-      }
-    }
-
-    if (length(lgnd) > 1) {
-      draw.lgnd = FALSE      
-      for (lg in lgnd) {
-        if (lg == "page") {
-          draw.lgnd = ((i == 1)  || (i %% (col*row)) == 1)
-        }
-        else {
-          if (i == lg) {
-            draw.lgnd = TRUE
-            break
-          }
-        }
-      }
-    }
-    else {
-      draw.lgnd = lgnd
-    }
-
-    if (draw.lgnd == "page") {
-      draw.lgnd = ((i == 1)  || (i %% (col*row)) == 1)
-    }
-    
-    if (draw.lgnd == TRUE) {
-      if (! is.null(lgndx)) {
-        lgx <- lgndx
-      }
-      else {
-        lgx <- xdatamin + 0.05*(xdatamax-xdatamin)
-      }
-
-      if (! is.null(lgndy)) {
-        lgy <- lgndy
-      }
-      else {
-        lgy <- ymin1 + 0.9*(ymax1 - ymin1)
-      }
-
-      if (bw == FALSE) {
-        leg.color<- my.colors[1:(ncol(lods)-2)];
-      }
-      else {
-        leg.color <- "black";
-      }
-      legend(lgx, lgy, leg, col=leg.color, lty=ltys, pch=pchs, cex=0.7);
-    }
-    
-    axis(3, tck=0.05, at=lloc,labels=lbl,cex.axis=0.7,las=2);
-
-    detach(lods);
-      
-    if(output == "screen") {
-      if((i %% (col*row)) == 0) {
-        par(ask = TRUE);
+  }
+  else {
+    if (!is.null(filename)) {      
+      lods <- read.table(filename, header=header, sep="", na.strings=c("NA", "."))
+     
+      if (ncol(lods) <= 2) {
+        print(paste("File ", filename, "does not have any data."));
+        return(F)
       }
     }
   }
-  if(batch == TRUE && output != "screen") {
-    dev.off(dev.list());
+
+  attach(lods)
+  
+  rows <- dim(lods)[1]
+  cols <- dim(lods)[2]  
+  dist <- lods[, 2]
+  
+  ydatamax <- max(lods[, 3:cols], na.rm=TRUE);
+  ydatamin <- min(lods[, 3:cols], na.rm=TRUE);
+  xdatamin <- min(dist, na.rm=TRUE);
+  xdatamax <- max(dist, na.rm=TRUE);
+  
+  if(is.null(ymax)) {
+    ymax1 <- ydatamax + 0.2;
   }
+  else {
+    if (yfix == TRUE) {
+      ymax1 <- ymax
+    }
+    else {
+      ymax1 <- max(ydatamax, yline, ymax);
+    }
+  }
+  
+  if(is.null(ymin)) {
+    ymin1 <- ydatamin - 0.1;
+  }
+  else {
+    if (yfix == TRUE) {
+      ymin1 <- ymin;
+    }
+    else {
+      ymin1 <- min(ymin, ydatamin);
+    }
+  }
+
+  if ((yfix == TRUE) && ((yline > ymax1) || (yline < ymin1))) {
+    if (yline > ymax1) {
+      print(paste("Y-line exceeds Y-max fixed at ", as.character(ymax1)))
+    }
+    else if (yline < ymin1) {
+      print(paste("Y-line falls below Y-min fixed at ", as.character(ymin1)))
+    }
+    print("Y-line will not be drawn.")
+    yline <- NA
+  }
+
+  if (is.null(ltypes) && is.null(ptypes)) {
+    ltypes = 1:(cols-2)
+  }
+
+  plot(c(xdatamin, xdatamax), c(ymin1, ymax1), type="n",
+       lty=1,
+       xlab=xlabl, ylab=ylabl, xlim=c(xdatamin, xdatamax), 
+       ylim=c(ymin1, ymax1), tcl=tcl, ...)
+  
+
+  if(!is.na(yline)) {
+    abline(h=yline, col="grey40", ...)
+  }
+  
+  if(!is.null(title)) {
+    title(sub=maint, line=2);
+  }
+  
+  if (bw==FALSE) {
+    if (is.null(my.colors)) {
+      my.colors <- rainbow(cols-2)
+    }
+  }
+  
+  for (k in 3:cols) {
+    scores<-get(names(lods)[k])
+    ifelse(!is.null(ltypes), lt<- ltypes[k-2], lt<-"none")
+    ifelse(!is.null(ptypes), ch<- ptypes[k-2], ch<-"none")
+    
+    this.x<-dist
+    this.y<-scores
+    
+    if (bw == FALSE) {
+      color <- my.colors[k-2]
+    }
+    else {
+      color <- "black"
+    }
+    
+    
+    if (na.rm) {
+      this.x <- this.x[!is.na(this.y)];
+      this.y <- this.y[!is.na(this.y)];
+    }
+
+    if (lt == 0) { lt = "none"}
+    if (ch == 0) { ch = "none"}
+
+    if(lt == "none" && ch != "none") {
+      points(this.x, this.y, pch = ch, col=color, ...);
+      pchs[k-2] <- ch;
+      ltys[k-2] <- "blank";
+    }
+    if(lt != "none" && ch == "none") {
+      lines(this.x, this.y, type = "l", lty = lt,
+            xaxt="n", yaxt="n", col=color, ...);
+      pchs[k-2] = " ";
+      ltys[k-2] = lt;
+    }
+    if(lt != "none" && ch != "none") {
+      lines(this.x, this.y, type="b", lty = lt, pch=ch,
+            xaxt="n", yaxt="n", col=color, ...);
+      pchs[k-2] <- ch;
+      ltys[k-2] <- lt;
+    }
+    
+    if(ch == "none" && lt == "none") {
+      print("Skipping this line");
+    }
+  }
+  
+  markers<-as.character(lods[,1]);
+  # check if too markers are very close together
+  lbl<-markers[markers != "-"];
+  lloc<-dist[markers != "-"];
+
+  # If a plot width has been specified, check if labels are
+  # too close
+
+  if (plot.width == 0.0) {
+    plot.width <- (par()$pin)[1]
+  }
+  
+  last.pos<-lloc[1]/(lloc[length(lloc)]-lloc[1]) * plot.width;
+  for (j in 2:length(lloc)) {
+    diff<-lloc[j]/(lloc[length(lloc)]-lloc[1]) * plot.width - last.pos;
+    if (diff < 0.15) {
+      lbl[j]<- "    ";
+    }
+    else {
+      last.pos<-last.pos+diff;
+    }
+  }
+  
+  axis(3, tck=0.05, at=lloc,labels=lbl,cex.axis=cex.axis,las=2);
+  
+  
+  # If the user has supplied legends, then use these
+  # There should be as many legends as the number of data columns.
+  # If there are fewer, use the names of the table
+
+  
+  if (draw.lgnd) {
+    if (is.null(lgndtxt) || length(lgndtxt) < (cols - 2)) {
+      leg <- names(lods)[3:cols]
+    }
+    else {
+      leg <- lgndtxt
+    }
+    
+    if (! is.null(lgndx)) {
+      lgx <- lgndx
+    }
+    else {
+      lgx <- xdatamin + 0.05*(xdatamax-xdatamin)
+    }
+    if (! is.null(lgndy)) {
+      lgy <- lgndy
+    }
+    else {
+      lgy <- ymin1 + 0.9*(ymax1 - ymin1)
+    }
+    
+    if (!is.null(my.colors)) {
+      leg.color<- my.colors;
+    }
+    else {
+      leg.color <- "black";
+    }
+
+    legend(lgx, lgy, leg, col=leg.color, lty=ltys, pch=pchs, cex=cex.legend);
+  }
+  
+  detach(lods);
+  return(TRUE)
+  
+}
+
+#   Mega2: Manipulation Environment for Genetic Analysis
+#   Copyright (C) 1999-2009 Nandita Mukhopadhyay, Lee Almasy,
+#            Mark Schroeder, William P. Mulvihill, Daniel E. Weeks
+#  
+#   This file is part of the Mega2 program, which is free software; you
+#   can redistribute it and/or modify it under the terms of the GNU
+#   General Public License as published by the Free Software Foundation;
+#   either version 2 of the License, or (at your option) any later
+#   version.
+#  
+#   Mega2 is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+#   for more details.
+#  
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#  
+#   For further information contact:
+#       Nandita Mukhopadhyay
+#       e-mail: nandita@pitt.edu, Tel:412-624-7351
+#       or
+#       Daniel E. Weeks
+#       e-mail: weeks@pitt.edu
+# 
+# ===========================================================================
+#NPL plot R package
+
+## ltypes  = should be 1 to the number of statistics
+
+## bw=TRUE
+
+## bw=TRUE, plot.width=par()$pin[1]
+
+## ymax=3
+## ymin=0
+## yfix=F
+
+## draw.lgnd=T
+
+nplplot<-function(plotdata=NULL, filename=NULL, yline=2.0, ymin=0, ymax=3.0,
+                  header=TRUE, yfix=FALSE, title=NULL, draw.lgnd=TRUE,
+                  xlabl="", ylabl="", lgndx=NULL, lgndy=NULL, lgndtxt=NULL,
+                  cex.legend = 0.7, cex.axis=0.7, tcl=1,
+                  bw=TRUE, my.colors=NULL, ltypes=NULL, ptypes=NULL,
+                  na.rm=TRUE, plot.width=0, ...)
+{
+
+  
+  leg = NULL; ltys = NULL; pchs = NULL
+  
+  # use a plot command instead of abline to set plot parameters
+  # If the user has supplied titles, then use them.
+  # There should be as many as there are files (number of plots).
+  # If there are fewer titles, recycle the last one.
+    
+  if(!is.null(title)) {
+    maint <- title
+  }
+  
+  # Figure out how the data has been supplied
+
+  if (is.null(plotdata) && is.null(filename)) {
+    print("Both plotdata and file are NULL, no data to plot!")
+    return(F);
+  }
+
+  if (!is.null(plotdata) && !is.null(filename)) {
+    print("Both plotdata and file are specified, using plotdata.")
+  }
+  
+  if (!is.null(plotdata)) {
+    lods <- plotdata
+    print("lods read in as table")
+    
+    if(ncol(lods) <= 2) {
+      print(paste("plotdata does not have any data."));
+      return(F)
+    }
+  }
+  else {
+    if (!is.null(filename)) {      
+      lods <- read.table(filename, header=header, sep="", na.strings=c("NA", "."))
+     
+      if (ncol(lods) <= 2) {
+        print(paste("File ", filename, "does not have any data."));
+        return(F)
+      }
+    }
+  }
+
+  attach(lods)
+  
+  rows <- dim(lods)[1]
+  cols <- dim(lods)[2]  
+  dist <- lods[, 2]
+  
+  ydatamax <- max(lods[, 3:cols], na.rm=TRUE);
+  ydatamin <- min(lods[, 3:cols], na.rm=TRUE);
+  xdatamin <- min(dist, na.rm=TRUE);
+  xdatamax <- max(dist, na.rm=TRUE);
+  
+  if(is.null(ymax)) {
+    ymax1 <- ydatamax + 0.2;
+  }
+  else {
+    if (yfix == TRUE) {
+      ymax1 <- ymax
+    }
+    else {
+      ymax1 <- max(ydatamax, yline, ymax);
+    }
+  }
+  
+  if(is.null(ymin)) {
+    ymin1 <- ydatamin - 0.1;
+  }
+  else {
+    if (yfix == TRUE) {
+      ymin1 <- ymin;
+    }
+    else {
+      ymin1 <- min(ymin, ydatamin);
+    }
+  }
+
+  if ((yfix == TRUE) && ((yline > ymax1) || (yline < ymin1))) {
+    if (yline > ymax1) {
+      print(paste("Y-line exceeds Y-max fixed at ", as.character(ymax1)))
+    }
+    else if (yline < ymin1) {
+      print(paste("Y-line falls below Y-min fixed at ", as.character(ymin1)))
+    }
+    print("Y-line will not be drawn.")
+    yline <- NA
+  }
+
+  if (is.null(ltypes) && is.null(ptypes)) {
+    ltypes = 1:(cols-2)
+  }
+
+  plot(c(xdatamin, xdatamax), c(ymin1, ymax1), type="n",
+       lty=1,
+       xlab=xlabl, ylab=ylabl, xlim=c(xdatamin, xdatamax), 
+       ylim=c(ymin1, ymax1), tcl=tcl, ...)
+  
+
+  if(!is.na(yline)) {
+    abline(h=yline, col="grey40", ...)
+  }
+  
+  if(!is.null(title)) {
+    title(sub=maint, line=2);
+  }
+  
+  if (bw==FALSE) {
+    if (is.null(my.colors)) {
+      my.colors <- rainbow(cols-2)
+    }
+  }
+  
+  for (k in 3:cols) {
+    scores<-get(names(lods)[k])
+    ifelse(!is.null(ltypes), lt<- ltypes[k-2], lt<-"none")
+    ifelse(!is.null(ptypes), ch<- ptypes[k-2], ch<-"none")
+    
+    this.x<-dist
+    this.y<-scores
+    
+    if (bw == FALSE) {
+      color <- my.colors[k-2]
+    }
+    else {
+      color <- "black"
+    }
+    
+    
+    if (na.rm) {
+      this.x <- this.x[!is.na(this.y)];
+      this.y <- this.y[!is.na(this.y)];
+    }
+
+    if (lt == 0) { lt = "none"}
+    if (ch == 0) { ch = "none"}
+
+    if(lt == "none" && ch != "none") {
+      points(this.x, this.y, pch = ch, col=color, ...);
+      pchs[k-2] <- ch;
+      ltys[k-2] <- "blank";
+    }
+    if(lt != "none" && ch == "none") {
+      lines(this.x, this.y, type = "l", lty = lt,
+            xaxt="n", yaxt="n", col=color, ...);
+      pchs[k-2] = " ";
+      ltys[k-2] = lt;
+    }
+    if(lt != "none" && ch != "none") {
+      lines(this.x, this.y, type="b", lty = lt, pch=ch,
+            xaxt="n", yaxt="n", col=color, ...);
+      pchs[k-2] <- ch;
+      ltys[k-2] <- lt;
+    }
+    
+    if(ch == "none" && lt == "none") {
+      print("Skipping this line");
+    }
+  }
+  
+  markers<-as.character(lods[,1]);
+  # check if too markers are very close together
+  lbl<-markers[markers != "-"];
+  lloc<-dist[markers != "-"];
+
+  # If a plot width has been specified, check if labels are
+  # too close
+
+  if (plot.width == 0.0) {
+    plot.width <- (par()$pin)[1]
+  }
+  
+  last.pos<-lloc[1]/(lloc[length(lloc)]-lloc[1]) * plot.width;
+  for (j in 2:length(lloc)) {
+    diff<-lloc[j]/(lloc[length(lloc)]-lloc[1]) * plot.width - last.pos;
+    if (diff < 0.15) {
+      lbl[j]<- "    ";
+    }
+    else {
+      last.pos<-last.pos+diff;
+    }
+  }
+  
+  axis(3, tck=0.05, at=lloc,labels=lbl,cex.axis=cex.axis,las=2);
+  
+  
+  # If the user has supplied legends, then use these
+  # There should be as many legends as the number of data columns.
+  # If there are fewer, use the names of the table
+
+  
+  if (draw.lgnd) {
+    if (is.null(lgndtxt) || length(lgndtxt) < (cols - 2)) {
+      leg <- names(lods)[3:cols]
+    }
+    else {
+      leg <- lgndtxt
+    }
+    
+    if (! is.null(lgndx)) {
+      lgx <- lgndx
+    }
+    else {
+      lgx <- xdatamin + 0.05*(xdatamax-xdatamin)
+    }
+    if (! is.null(lgndy)) {
+      lgy <- lgndy
+    }
+    else {
+      lgy <- ymin1 + 0.9*(ymax1 - ymin1)
+    }
+    
+    if (!is.null(my.colors)) {
+      leg.color<- my.colors;
+    }
+    else {
+      leg.color <- "black";
+    }
+
+    legend(lgx, lgy, leg, col=leg.color, lty=ltys, pch=pchs, cex=cex.legend);
+  }
+  
+  detach(lods);
+  return(TRUE)
+  
 }
 
