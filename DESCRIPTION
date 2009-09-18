@@ -1,6 +1,6 @@
 Package: nplplot
-Version: 4.3
-Date: 2009-06-16
+Version: 4.4
+Date: 2009-09-18
 Title: Plotting non-parametric linkage results
 Author: Nandita Mukhopadhyay <nandita@pitt.edu>, Daniel E. Weeks
         <weeks+@pitt.edu>, Xinyu Tang <xit11+@pitt.edu>
@@ -13,6 +13,6 @@ Description: nplplot: Plots curves for non parametric linkage results
         one function, please use the other two functions instead.
 License: GPL (>= 2)
 URL: http://www.r-project.org, http://watson.hgen.pitt.edu/register
-Packaged: Tue Jun 16 10:46:04 2009; nandita
+Packaged: 2012-10-29 08:59:18 UTC; ripley
 Repository: CRAN
-Date/Publication: 2009-06-16 15:21:28
+Date/Publication: 2012-10-29 08:59:18

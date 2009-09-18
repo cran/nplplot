@@ -51,16 +51,6 @@ nplplot.multi<-function(filenames, col=2, row=2, mode="l", output="screen",
                         customtracks=FALSE, mega2mapfile=NULL, 
                         pagewidth=NULL, pageheight=NULL, topmargin=0.25, ...)
 {
-
-  old.par <- par(no.readonly = TRUE)
-
-  if (output == "screen") {
-     on.exit(par(old.par))
-  }
-  else {
-    on.exit(par(old.par), add=TRUE)
-#    on.exit(graphics.off())
-  }
   
   numfiles<-length(filenames)
   
@@ -136,10 +126,6 @@ nplplot.multi<-function(filenames, col=2, row=2, mode="l", output="screen",
      # read the header file to set the arguments to nplplot,
      # then call nplplot
 
-    # If the user has supplied titles, then use them.
-    # There should be as many as there are files (number of plots).
-    # If there are fewer titles, recycle the last one.
-     
     # If the user has supplied headerfiles, then read in a
     # line from each file as header
     # There should be as many header files as there are data files
@@ -230,6 +216,7 @@ nplplot.multi<-function(filenames, col=2, row=2, mode="l", output="screen",
         par(ask = TRUE)
       }
     }
+      
   }
   
   
