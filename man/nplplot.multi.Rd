@@ -4,15 +4,20 @@
 \description{Wrapper function for the 'nplplot' function. Creates mutiple plots
 from a list of plot files, with custom graphical parameters set by
 header files. }
-\usage{nplplot.multi(filenames, col=2, row=2, mode="l", output="screen", 
-                headerfiles=NULL, lgnd="page", customtracks=FALSE,
-                mega2mapfile=NULL, pagewidth=NULL, pageheight=NULL,
-                topmargin=0.25, ...)
+\usage{nplplot.multi(filenames, plotdata = NULL, col=2, row=2, mode="l",
+                output="screen", headerfiles=NULL, lgnd="page",
+                customtracks=FALSE, mega2mapfile=NULL,
+                pagewidth=NULL, pageheight=NULL, topmargin=0.25,
+                ...)
 }
 \arguments{
   \item{filenames}{ Vector of strings giving file names
   containing tables of linkage analysis results. See
   \code{\link{nplplot}} for a description of the file format. }
+
+  \item{plotdata}{ List of dataframes by chromosome
+  containing tables of linkage analysis results. See
+  \code{\link{nplplot}} for a description of the format. }
 
   \item{col}{ Integer indicating number of columns of plots to be drawn
   on a page.}
@@ -24,7 +29,7 @@ header files. }
 
   \item{output}{ String giving file name to save plots in. If
   set to 'screen', plots will be displayed and not saved. The file
-  format id decided by the filename extension, '.pdf' for PDF, or
+  format is determined by the filename extension: '.pdf' for PDF, or
   '.ps' for postscript. If no extension is provided, or is not
   recognized, a PDF file will be produced with '.pdf' appended to the
   file name.}
@@ -52,8 +57,10 @@ header files. }
     \code{mega2mapfile} also needs to be supplied (see below). }
 
   \item{mega2mapfile}{ Mega2 annotated format map file containing
-   physical positions for all SNPs and chromosomes present in the
-   nplplot input data files. }
+   physical positions for all the markers present in the
+   nplplot input data files. Rather than a file name, the name of a 
+   \emph{data.frame} containing what would have been read from the file,
+   may be given. }
 
   \item{pagewidth}{ A number denoting width of the plot page in
   inches. If set to NULL, a width of 7.0 is used for the plot
@@ -87,7 +94,14 @@ genome browser, as well as a genome-wide plot. To use this feature, make
 sure that the names of the nplplot input data files each have a
 "Mega2-style" chromosome extension (01 through 09 for chromosomes 1
 thorugh 9, otherwise the chromosome number, or X for the human
-sex-chromosome, 23). }
+X-chromosome, 23).
+
+To make this function more useful to other \strong{R} programs, you may
+directly supply a \emph{data.frame} for the \code{mapfile} argument
+and a list of \emph{data.frames} for the \code{plotdata} argument
+and NULL for the \code{filename} argument.  (The name of each list
+element is the corresponding chromosome.)
+}
 
 \value{TRUE or FALSE depending on whether all plot commands were successful.}
 
@@ -95,12 +109,12 @@ sex-chromosome, 23). }
 \examples{
 datadir <- paste(system.file("data", package="nplplot"),
                  .Platform$file.sep, sep="")
-f1 <- paste(datadir, "lods1.txt", sep="")
-f2 <- paste(datadir, "lods2.txt", sep="")
-h1 <- paste(datadir, "lods1header.R", sep="")
-h2 <- paste(datadir, "lods2header.R", sep="")
+f1 <- paste(datadir, "lods1.txt.gz", sep="")
+f2 <- paste(datadir, "lods2.txt.gz", sep="")
+h1 <- system.file("extdata","lods1header.R",package="nplplot")
+h2 <- system.file("extdata","lods2header.R",package="nplplot")
 nplplot.multi(c(f1, f2), col=1, row=2, output="screen", 
 	     headerfiles=c(h1, h2), topmargin=0.5)
 }
 
-\keyword{hplot}
+\keyword{plotting}

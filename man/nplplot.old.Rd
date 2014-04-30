@@ -143,6 +143,6 @@ will result in no label at that position.
 \dontrun{nplplot.old("lod.1", output="lod.1.ps", batch=T, headerfiles="hdr.1")}
 \dontrun{nplplot.old(c("lod.1", "lod.2"), col=1, row=2, headerfiles=c("hdr.1","hdr.2"))}
 }
-\keyword{hplot}
+\keyword{plotting}
 
 %  LocalWords:  ymin ymax nplplot headerfiles headerfile headerline

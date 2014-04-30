@@ -1,11 +1,12 @@
 #   Mega2: Manipulation Environment for Genetic Analysis
-#   Copyright (C) 1999-2009 Nandita Mukhopadhyay, Lee Almasy,
-#            Mark Schroeder, William P. Mulvihill, Daniel E. Weeks
+#   Copyright (C) 1999-2013 Robert Baron, Charles P. Kollar,
+#   Nandita Mukhopadhyay, Lee Almasy, Mark Schroeder, William P. Mulvihill,
+#   Daniel E. Weeks, and University of Pittsburgh
 #  
 #   This file is part of the Mega2 program, which is free software; you
 #   can redistribute it and/or modify it under the terms of the GNU
 #   General Public License as published by the Free Software Foundation;
-#   either version 2 of the License, or (at your option) any later
+#   either version 3 of the License, or (at your option) any later
 #   version.
 #  
 #   Mega2 is distributed in the hope that it will be useful, but WITHOUT
@@ -18,9 +19,6 @@
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #  
 #   For further information contact:
-#       Nandita Mukhopadhyay
-#       e-mail: nandita@pitt.edu, Tel:412-624-7351
-#       or
 #       Daniel E. Weeks
 #       e-mail: weeks@pitt.edu
 # 
@@ -46,13 +44,15 @@
 # This function does not allow the ... argument ?
 #
 
-nplplot.multi<-function(filenames, col=2, row=2, mode="l", output="screen",
+nplplot.multi<-function(filenames, plotdata=NULL, col=2, row=2, mode="l", output="screen",
                         headerfiles=NULL, lgnd="page",
                         customtracks=FALSE, mega2mapfile=NULL, 
                         pagewidth=NULL, pageheight=NULL, topmargin=0.25, ...)
 {
-  
-  numfiles<-length(filenames)
+  if (!is.null(plotdata))
+    numfiles=length(plotdata)
+  else
+    numfiles<-length(filenames)
   
   # page size in inches
   if (is.null(pagewidth)) {
@@ -186,28 +186,48 @@ nplplot.multi<-function(filenames, col=2, row=2, mode="l", output="screen",
 
     # assume files with a header,
 
-    retval1 <- nplplot(filename=filenames[i], plotdata=NULL, header=TRUE, yline=yline, ymin=ymin,
-                       ymax=ymax, yfix=yfix, title=title, draw.lgnd=draw.lgnd,
-                       xlabl="", ylabl=ylabel,
-                       lgndx=lgndx, lgndy=lgndy, lgndtxt=lgndtxt, cex.legend=cex.legend,
-                       bw=bw, my.colors=my.colors, ltypes=ltypes, ptypes=ptypes,
-                       tcl=tcl, cex.axis=cex.axis,
-                       plot.width=pl.wd, ...)
+    if (!is.null(plotdata)) {
+        title=paste("Chromosome", names(plotdata[i]))
 
+        retval1 <- nplplot(filename=NULL, plotdata=plotdata[[i]], header=TRUE, yline=yline, ymin=ymin,
+                           ymax=ymax, yfix=yfix, title=title, draw.lgnd=draw.lgnd,
+                           xlabl="", ylabl=ylabel,
+                           lgndx=lgndx, lgndy=lgndy, lgndtxt=lgndtxt, cex.legend=cex.legend,
+                           bw=bw, my.colors=my.colors, ltypes=ltypes, ptypes=ptypes,
+                           tcl=tcl, cex.axis=cex.axis,
+                           plot.width=pl.wd, ...)
+      } else {
+
+        retval1 <- nplplot(filename=filenames[i], plotdata=NULL, header=TRUE, yline=yline, ymin=ymin,
+                           ymax=ymax, yfix=yfix, title=title, draw.lgnd=draw.lgnd,
+                           xlabl="", ylabl=ylabel,
+                           lgndx=lgndx, lgndy=lgndy, lgndtxt=lgndtxt, cex.legend=cex.legend,
+                           bw=bw, my.colors=my.colors, ltypes=ltypes, ptypes=ptypes,
+                           tcl=tcl, cex.axis=cex.axis,
+                           plot.width=pl.wd, ...)
+      }
+    
     retval <- retval && retval1
   
     if ((customtracks==TRUE) && !is.null(mega2mapfile)) {
       # first create the prefix by taking out the last extension
       # Check that each of these are numeric or 'X', 'XY', 'Y'
-
-      a<-unlist(strsplit(filenames[i], ".", fixed=TRUE))
-      chrlist[i] <- switch(a[length(a)],
-                           X = "X",
-                           Y = "Y",
-                           XY = "XY",
-                           a[length(a)])
-      if (i==1) {
-        prefix <- paste(a[1:length(a)-1], sep=".")
+      if (is.null(plotdata)) {
+          a<-unlist(strsplit(filenames[i], ".", fixed=TRUE))
+          chrlist[i] <- switch(a[length(a)],
+                               X = "X",
+                               Y = "Y",
+                               XY = "XY",
+                               a[length(a)])
+          if (i==1) {
+              prefix <- paste(a[1:length(a)-1], sep=".")
+          }
+      } else {
+          chrlist[i] = names(plotdata[i])
+          if (i==1) {
+              a<-unlist(strsplit(filenames[i], ".", fixed=TRUE))
+              prefix <- paste(a[1:length(a)-1], sep=".")
+          }
       }
     }
     
@@ -221,8 +241,11 @@ nplplot.multi<-function(filenames, col=2, row=2, mode="l", output="screen",
   
   
   if ((customtracks == TRUE) && !is.null(mega2mapfile)) {
-    prepareplot(prefix, chrlist,  mega2mapfile, output="both")
+#   prepareplot(prefix, chrlist,  mega2mapfile, output="both")
+    prepareplot(plotdata, chrlist,  mega2mapfile, output="both")
     for (i in (1:numfiles)) {
+      if (!is.null(plotdata))
+        if (nchar(chrlist[i]) == 1) chrlist[i] = paste("0", chrlist[i], sep="")
       bedplot(paste("bed.data", chrlist[i], sep="."))
     }
     retval1 <- genomeplot("GG.data.all")

@@ -2,13 +2,13 @@
 \name{lods2}
 \docType{data}
 \alias{lods2}
-\title{LOD score table for chromosome 1}
+\title{LOD score table for chromosome 2}
 \description{
-This is a data-frame with the first two columns containing Marker names
-and positions, followed by one or more columns of LOD-scores.  
+This is a data frame with the first two columns containing marker names
+and positions, followed by three columns of LOD scores.  
 }
-\usage{lods2}
+\usage{data(lods2)}
 \format{
-  There are 101 markers in the table.
+  There are 87 markers in the table. 
 }
 \keyword{datasets}

@@ -6,20 +6,28 @@
   \link{bedplot} and \link{genomeplot} functions from nplplot-formatted
   score files and a Mega2 annotated format map file with physical positions. }  
 \usage{
- prepareplot(prefix, chrlist=1:24, mapfile, output="both")
+ prepareplot(prefix, chrlist=c(1:23,25), mapfile, output="both")
 }
 \arguments{
   \item{prefix}{Prefix of the names of R table files, e.g. \dQuote{RMERLINDATA} for R table files 
   \dQuote{RMERLINDATA.01}, \dQuote{RMERLINDATA.02}, etc. Using
   \code{chrlist} below, it automatically finds R table files with the
-  specified prefix and chromosome-specific extensions to convert. }
+  specified prefix and chromosome-specific extensions to convert.
+
+  Alternatively, \code{prefix} may be a \emph{list} of
+  \emph{data.frames} named by the chromosomes supplied in \code{chrlist}.
+}
   
   \item{chrlist}{List of chromosome numbers to create plots for, default 1 through
-  24. Chromosomes 23 and 24 produces files for the X chromosome X, 24
+  23. Chromosomes 23 and 25 produces files for the X chromosome X, 25
   denoting pseudo-autosomal markers on chromosome X. }
   
   \item{mapfile}{Mega2 annnotated format map file, containing
-    marker names and and exactly one set of physical positions. }
+    marker names and and exactly one set of physical
+    positions. \code{mapfile} may instead be a \emph{data.frame}
+    containing the same information as the map file, viz. the marker
+    names and physical positions.
+}
   
   \item{output}{Which plotting function to generate data for,
     \dQuote{both} for both bedplot and genomeplot functions,

@@ -1,11 +1,12 @@
 #   Mega2: Manipulation Environment for Genetic Analysis
-#   Copyright (C) 1999-2009 Nandita Mukhopadhyay, Lee Almasy,
-#            Mark Schroeder, William P. Mulvihill, Daniel E. Weeks
+#   Copyright (C) 1999-2013 Robert Baron, Charles P. Kollar,
+#   Nandita Mukhopadhyay, Lee Almasy, Mark Schroeder, William P. Mulvihill,
+#   Daniel E. Weeks, and University of Pittsburgh
 #  
 #   This file is part of the Mega2 program, which is free software; you
 #   can redistribute it and/or modify it under the terms of the GNU
 #   General Public License as published by the Free Software Foundation;
-#   either version 2 of the License, or (at your option) any later
+#   either version 3 of the License, or (at your option) any later
 #   version.
 #  
 #   Mega2 is distributed in the hope that it will be useful, but WITHOUT
@@ -18,9 +19,6 @@
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #  
 #   For further information contact:
-#       Nandita Mukhopadhyay
-#       e-mail: nandita@pitt.edu, Tel:412-624-7351
-#       or
 #       Daniel E. Weeks
 #       e-mail: weeks@pitt.edu
 # 
@@ -169,7 +167,7 @@ nplplot.old<-function(files, col=2, row=2, mode="p", output="screen",
       print(paste("File ", file.names[i], "does not have any data."));
       return(F);
     }
-    attach(lods);
+#   attach(lods);
 
     rows <- dim(lods)[1];
     cols <- dim(lods)[2];
@@ -235,7 +233,8 @@ nplplot.old<-function(files, col=2, row=2, mode="p", output="screen",
       title(sub=maint, line=2);
     }
     for (k in 3:cols) {
-      scores<-get(names(lods)[k]);
+#     scores<-get(names(lods)[k]);
+      scores<-lods[,k];
       ch <- scores[rows];
       lt <- scores[rows-1];
       if(bw == FALSE) {
@@ -340,7 +339,7 @@ nplplot.old<-function(files, col=2, row=2, mode="p", output="screen",
     
     axis(3, tck=0.05, at=lloc,labels=lbl,cex.axis=0.7,las=2);
 
-    detach(lods);
+#   detach(lods);
       
     if(output == "screen") {
       if((i %% (col*row)) == 0) {

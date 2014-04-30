@@ -23,8 +23,8 @@
   or file has a header line. }
 
   \item{yline}{ Y-value for displaying a horizontal cut-off
-  line. If y-fix is set to TRUE and Y-line falls outside of \code{ymin,
-  ymax}, then the cut-off line is omitted. }
+  line. If 'yfix' is set to TRUE and Y-line falls outside of \code{[ymin,
+  ymax]}, then the cut-off line is omitted. }
 
   \item{ymin, ymax}{ Y-axis minimum and maximum values. If non-NULL
     values are provided, and \code{yfix} is set to TRUE, then the plot
@@ -48,12 +48,12 @@
   \item{lgndx}{ X coordinate for the legend box, passed to the
   \code{\link{legend}} command. Ignored if \code{draw.legend}
   is set to FALSE. If set to NULL with \code{draw.legend} set to TRUE,
-  an X-coordinate is automatically calculated. }
+  the X-coordinate is automatically calculated. }
 
   \item{lgndy}{ Y coordinate for the legend box, passed to the
   \code{\link{legend}} command. Ignored if \code{draw.legend}
   is set to FALSE. If set to NULL with \code{draw.legend} set to TRUE,
-  an Y-coordinate is automatically calculated. }
+  the Y-coordinate is automatically calculated. }
 
   \item{lgndtxt}{ Vector of strings to use in the legend. }
 
@@ -108,17 +108,17 @@ and association analysis results such as LOD scores and P-values. It
 allows the marker names to be displayed along the top border of the
 plot, as well as a significance threshold line.
 
-A results file has to be in a specific tabular format with
+The input plot data has to be in a specific tabular format with
 each column separated by white-space :
 
 Here is an example:
 \preformatted{
-marker   location        score1  score2 score3      
+Marker   Position        score1  score2 score3      
 d1s228   0.00            0.546   0.345  0.142                    
 d1s429   1.00            0.346   0.335  0.252       
 d1s347   2.00            0.446   0.245  0.342                    
 }
-This file contains a header, therefore the \code{header} argument should
+This example file contains a header, therefore the \code{header} argument should
 be set to TRUE.
 
 Lines 2-4 contain scores at various marker positions. \bold{Missing
@@ -144,13 +144,11 @@ data(lods2, package="nplplot")
 nplplot(plotdata=lods2, draw.lgnd=FALSE)
 
 # plotting from a data file
-
-datadir <- paste(system.file("data", package="nplplot"),
-.Platform$file.sep, sep="")
-nplplot(filename=paste(datadir, "lods2.txt", sep=""))
+datadir <- paste(system.file("data", package="nplplot"), .Platform$file.sep, sep="")
+nplplot(filename=paste(datadir, "lods2.txt.gz", sep=""))
 
 }
-\keyword{hplot}
+\keyword{plotting}
 
 
 %  LocalWords:  lgndtxt

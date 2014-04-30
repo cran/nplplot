@@ -1,11 +1,12 @@
 #   Mega2: Manipulation Environment for Genetic Analysis
-#   Copyright (C) 1999-2009 Nandita Mukhopadhyay, Lee Almasy,
-#            Mark Schroeder, William P. Mulvihill, Daniel E. Weeks
+#   Copyright (C) 1999-2013 Robert Baron, Charles P. Kollar,
+#   Nandita Mukhopadhyay, Lee Almasy, Mark Schroeder, William P. Mulvihill,
+#   Daniel E. Weeks, and University of Pittsburgh
 #  
 #   This file is part of the Mega2 program, which is free software; you
 #   can redistribute it and/or modify it under the terms of the GNU
 #   General Public License as published by the Free Software Foundation;
-#   either version 2 of the License, or (at your option) any later
+#   either version 3 of the License, or (at your option) any later
 #   version.
 #  
 #   Mega2 is distributed in the hope that it will be useful, but WITHOUT
@@ -18,9 +19,6 @@
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #  
 #   For further information contact:
-#       Nandita Mukhopadhyay
-#       e-mail: nandita@pitt.edu, Tel:412-624-7351
-#       or
 #       Daniel E. Weeks
 #       e-mail: weeks@pitt.edu
 # 
@@ -30,22 +28,23 @@
 # READ IN MEGA2 OUTPUT FILE (rtable) AND MEGA2 ANNOTATED INPUT MAP FILE (mapfile)
 
 
-prepareplot <- function(prefix, chrlist=1:24, mapfile, output="both")
+prepareplot <- function(prefix, chrlist=c(1:23,25), mapfile, output="both")
 
 {
-
 # Delete file with the same name as genome data file "GG.data.all" and "bed.data.23"
 
 unlink("GG.data.all")
 unlink("bed.data.23")
-
+unlink("bed.data.X")
 
 # Read in map file
 
-if (file.exists(mapfile) == TRUE) { map <- read.table(mapfile, header=T) } else {
+if (class(mapfile) == "data.frame") {
+  map <- mapfile
+} else if (file.exists(mapfile) == TRUE) { map <- read.table(mapfile, header=T) } else {
 
-	warning(paste("File", mapfile, "does not", "exist!", sep=" "))
-	return(FALSE)
+  warning(paste("File", mapfile, "does not", "exist!", sep=" "))
+  return(FALSE)
 
 }
 
@@ -66,25 +65,30 @@ if(length(grep(".p", names(map), fixed=T)) == 1) {
 
 # Number of R tables
 chrlist <- as.character(chrlist)
-chr_reg <- chrlist[! chrlist %in% c("23", "24")]
+chr_reg <- chrlist[! chrlist %in% c("23", "24", "X", "Y", "XY", "MT")]
 
 # Process with regular chromosomes
 
-for (i in chr_reg) {
+        for (i in chr_reg) {
+                if (class(prefix) == "character") {
+                        # Read in R table file
 
-	# Read in R table file
+                        # What is the R table name
+                        if (length(strsplit(i, split=NULL)[[1]]) == 1)
+                            r_n <- paste(prefix, ".0", i, sep="")
+                        else
+                            r_n <- paste(prefix, i, sep=".")
 
-	# What is the R table name
-	if (length(strsplit(i, split=NULL)[[1]]) == 1) r_n <- paste(prefix, ".0", i, sep="")
-	if (length(strsplit(i, split=NULL)[[1]]) == 2) r_n <- paste(prefix, i, sep=".")
+                        # Check if R table file exists
+                        if (file.exists(r_n) == TRUE) { r <- read.table(r_n, header=T) } else {
 
-	# Check if R table file exists
-	if (file.exists(r_n) == TRUE) { r <- read.table(r_n, header=T) } else {
+                                warning(paste("R table file", r_n, "does not", "exist!", sep=" "))
+                                return(FALSE)
 
-		warning(paste("R table file", r_n, "does not", "exist!", sep=" "))
-		return(FALSE)
-
-	}
+                }
+        } else {
+                r <- prefix[[i]]
+        }
 
 	r_bg <- r[r$Marker!="ltype" & r$Marker!="ptype", ]
 	r_b <- r_bg[r_bg$Marker!="-", ]
@@ -114,8 +118,10 @@ for (i in chr_reg) {
 	
 		# Define the title of bed.data file
 
-		if (length(strsplit(i, split=NULL)[[1]]) == 1) bed_t <- paste("bed.data", ".0", i, sep="")
-		if (length(strsplit(i, split=NULL)[[1]]) == 2) bed_t <- paste("bed.data", i, sep=".")
+		if (length(strsplit(i, split=NULL)[[1]]) == 1)
+                    bed_t <- paste("bed.data", ".0", i, sep="")
+                else
+                    bed_t <- paste("bed.data", i, sep=".")
 
 		write.table(bed.dat, file=bed_t, append=F, quote=F, row.names=F, col.names=T, sep="\t")
 
@@ -137,35 +143,41 @@ for (i in chr_reg) {
 
 }
 
-# Process with chromosomes 23 and 24
+# Process with chromosomes 23 and 25
 
 w_bg <- NULL
+Num <- TRUE
 
-if ("23" %in% chrlist) {
+if (any(c("23", "X") %in% chrlist)) {
 
-	# Read in R table file
+        if ("X" %in% chrlist) Num <- FALSE
 
-	r_n_23 <- paste(prefix, "23", sep=".")
-	r_n_X <- paste(prefix, "X", sep=".")
+	if (class(prefix) == "character") {
+                # Read in R table file
 
-	if (file.exists(r_n_23) == FALSE & file.exists(r_n_X) == FALSE) {
+                r_n_23 <- paste(prefix, "23", sep=".")
+                r_n_X <- paste(prefix, "X", sep=".")
 
-		warning(paste("Neither", r_n_23, "or", r_n_X, "exists!", sep=" "))
-		return(FALSE)
+                if (file.exists(r_n_23) == FALSE & file.exists(r_n_X) == FALSE) {
 
-	}
+                        warning(paste("Neither", r_n_23, "or", r_n_X, "exists!", sep=" "))
+                        return(FALSE)
 
-	if (file.exists(r_n_X) == TRUE & file.exists(r_n_23) == TRUE) {
+                }
 
-		warning(paste("Both", r_n_23, "and", r_n_X, "exist!", sep=" "))
-		return(FALSE)
+                if (file.exists(r_n_X) == TRUE & file.exists(r_n_23) == TRUE) {
 
-	}
+                        warning(paste("Both", r_n_23, "and", r_n_X, "exist!", sep=" "))
+                        return(FALSE)
 
-	if (file.exists(r_n_23) == TRUE & file.exists(r_n_X) == FALSE) r <- read.table(r_n_23, header=T)
+                }
 
-	if (file.exists(r_n_X) == TRUE & file.exists(r_n_23) == FALSE) r <- read.table(r_n_X, header=T)
+                if (file.exists(r_n_23) == TRUE & file.exists(r_n_X) == FALSE) r <- read.table(r_n_23, header=T)
 
+                if (file.exists(r_n_X) == TRUE & file.exists(r_n_23) == FALSE) r <- read.table(r_n_X, header=T)
+        } else {
+                r <- prefix[[ifelse(Num, "23", "X")]]
+        }
 	r_bg <- r[r$Marker!="ltype" & r$Marker!="ptype", ]
 	r_b <- r_bg[r_bg$Marker!="-", ]
 
@@ -181,47 +193,51 @@ if ("23" %in% chrlist) {
 
 }
 
-	
-if ("24" %in% chrlist) {
+if (any(c("25", "XY") %in% chrlist)) {
 		
-	# Read in R table file
+       if ("XY" %in% chrlist) Num <- FALSE
 
-	r_n_24 <- paste(prefix, "24", sep=".")
-	r_n_XY <- paste(prefix, "XY", sep=".")
+	if (class(prefix) == "character") {
+                # Read in R table file
 
-	if (file.exists(r_n_24) == FALSE & file.exists(r_n_XY) == FALSE) {
+                r_n_25 <- paste(prefix, "25", sep=".")
+                r_n_XY <- paste(prefix, "XY", sep=".")
 
-		warning(paste("Neither", r_n_24, "nor", r_n_XY, "exists!", sep=" "))
-		return(FALSE)
+                if (file.exists(r_n_25) == FALSE & file.exists(r_n_XY) == FALSE) {
 
-	}
+                        warning(paste("Neither", r_n_25, "nor", r_n_XY, "exists!", sep=" "))
+                        return(FALSE)
 
-	if (file.exists(r_n_XY) == TRUE & file.exists(r_n_24) == TRUE) {
+                }
 
-		warning(paste("Both", r_n_24, "and", r_n_XY, "exist!", sep=" "))
-		return(FALSE)
+                if (file.exists(r_n_XY) == TRUE & file.exists(r_n_25) == TRUE) {
 
-	}
+                        warning(paste("Both", r_n_25, "and", r_n_XY, "exist!", sep=" "))
+                        return(FALSE)
 
-	if (file.exists(r_n_24) == TRUE & file.exists(r_n_XY) == FALSE) r24 <- read.table(r_n_24, header=T)
+                }
 
-	if (file.exists(r_n_XY) == TRUE & file.exists(r_n_24) == FALSE) r24 <- read.table(r_n_XY, header=T)
+                if (file.exists(r_n_25) == TRUE & file.exists(r_n_XY) == FALSE) r25 <- read.table(r_n_25, header=T)
 
-	r24_bg <- r24[r24$Marker!="ltype" & r24$Marker!="ptype", ]
-	r24_b <- r24_bg[r24_bg$Marker!="-", ]
+                if (file.exists(r_n_XY) == TRUE & file.exists(r_n_25) == FALSE) r25 <- read.table(r_n_XY, header=T)
+        } else {
+                r <- prefix[[ifelse(Num, "25", "XY")]]
+        }
+	r25_bg <- r25[r25$Marker!="ltype" & r25$Marker!="ptype", ]
+	r25_b <- r25_bg[r25_bg$Marker!="-", ]
 
 	# Merge two tables
 
-	w24_bg <- merge(r24_bg, map, by.x="Marker", by.y="Name", all.x=T)
-	w24_b <- merge(r24_b, map, by.x="Marker", by.y="Name", all.x=T)
+	w25_bg <- merge(r25_bg, map, by.x="Marker", by.y="Name", all.x=T)
+	w25_b <- merge(r25_b, map, by.x="Marker", by.y="Name", all.x=T)
 
 	# Linear interpolation for the bedgragh table
 
-	f24 <- approxfun(w24_b$Position, w24_b[,p])
-	w24_bg[is.na(w24_bg[,p]),p] <- round(f24(w24_bg$Position[is.na(w24_bg[,p])]), 0)
+	f25 <- approxfun(w25_b$Position, w25_b[,p])
+	w25_bg[is.na(w25_bg[,p]),p] <- round(f25(w25_bg$Position[is.na(w25_bg[,p])]), 0)
 
-	# Combine records of chromosome 23 and 24
-	w_bg <- rbind(w_bg, w24_bg)
+	# Combine records of chromosome 23 and 25
+	w_bg <- rbind(w_bg, w25_bg)
 
 }
 
@@ -241,7 +257,11 @@ if (length(w_bg[,1]) != 0) {
 
 	if (output == "both" | output == "bed") {
 	
-		write.table(bed.dat, file="bed.data.23", append=F, quote=F, row.names=F, col.names=T, sep="\t")
+                if (Num)
+                    file = "bed.data.23"
+                else
+                    file = "bed.data.X"
+		write.table(bed.dat, file=file, append=F, quote=F, row.names=F, col.names=T, sep="\t")
 
 	}
 
