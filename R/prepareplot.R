@@ -39,7 +39,8 @@ unlink("bed.data.X")
 
 # Read in map file
 
-if (class(mapfile) == "data.frame") {
+# if (class(mapfile) == "data.frame") {
+if (is.data.frame(mapfile)) {
   map <- mapfile
 } else if (file.exists(mapfile) == TRUE) { map <- read.table(mapfile, header=T) } else {
 
@@ -70,7 +71,7 @@ chr_reg <- chrlist[! chrlist %in% c("23", "24", "X", "Y", "XY", "MT")]
 # Process with regular chromosomes
 
         for (i in chr_reg) {
-                if (class(prefix) == "character") {
+                if (is.character(prefix)) {
                         # Read in R table file
 
                         # What is the R table name
@@ -152,7 +153,7 @@ if (any(c("23", "X") %in% chrlist)) {
 
         if ("X" %in% chrlist) Num <- FALSE
 
-	if (class(prefix) == "character") {
+	if (is.character(prefix)) {
                 # Read in R table file
 
                 r_n_23 <- paste(prefix, "23", sep=".")
@@ -197,7 +198,7 @@ if (any(c("25", "XY") %in% chrlist)) {
 		
        if ("XY" %in% chrlist) Num <- FALSE
 
-	if (class(prefix) == "character") {
+	if (is.character(prefix)) {
                 # Read in R table file
 
                 r_n_25 <- paste(prefix, "25", sep=".")

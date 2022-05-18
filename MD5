@@ -1,12 +1,11 @@
-dbd0d7cfa484525ca2b9608f7535c534 *DESCRIPTION
-966b2cdbddf13d0150554acaba9751e5 *INDEX
-9fdfeb11f7ddba6f3aab9aaa6b1ac5dd *NAMESPACE
+79b2c9aabb14398aad7d621ef84398df *DESCRIPTION
+cad3243445f9ed784c4519f7fbde0065 *NAMESPACE
 1a1120ca052198e58aafb8550e6293e7 *R/bedplot.R
 68ef70476e0f38fa93c0a68ec37c5e13 *R/genomeplot.R
 96b456b86cfa65f1a6dd7bdb6a5c8c5e *R/nplplot.R
 4b4aff73c06cb7bc5495ab8af550ab7d *R/nplplot.multi.R
 962bc9b666c653d36aa1e48bf74b185f *R/nplplot.old.R
-e2b06b78ef0a86b2516969663955ba93 *R/prepareplot.R
+c8b35b0037d8dc5ab2b111bc291dc1da *R/prepareplot.R
 6d82289d388c9b8711e1cec977e25d20 *data/lods1.txt.gz
 53d8974294b72ab602eb8cbc3f32c6c3 *data/lods1header.rda
 1380a3d197f84f190f415582f24f4ae7 *data/lods2.txt.gz
