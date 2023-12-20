@@ -61,11 +61,11 @@ chromosome is chosen, R table files can have either \dQuote{24} or
 precedence.
 
 The prepareplot function generates chromosome-specific formatted score
-files \dQuote{bed.data.\#} for use by \link{bedplot} with the same
+files \dQuote{bed.data.#} for use by \link{bedplot} with the same
 suffix as the R table file. If X chromosome is chosen, the output file
 is named \dQuote{bed.data.23}. If XY chromosome is chosen, those records
 on XY chromosome are included in \dQuote{bed.data.23} file. The output
-file \dQuote{bed.data.\#} contains marker names and physical
+file \dQuote{bed.data.#} contains marker names and physical
 positions followed by one or more score columns. The header is taken
 from the input score file(s).
 

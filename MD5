@@ -1,4 +1,4 @@
-79b2c9aabb14398aad7d621ef84398df *DESCRIPTION
+5058b516962e83886227e7d5d10909b9 *DESCRIPTION
 cad3243445f9ed784c4519f7fbde0065 *NAMESPACE
 1a1120ca052198e58aafb8550e6293e7 *R/bedplot.R
 68ef70476e0f38fa93c0a68ec37c5e13 *R/genomeplot.R
@@ -20,8 +20,8 @@ b58dbee8cdfa32abdc83d32e891aa487 *man/lods2.Rd
 9c8476b0c3086ad598bc296be02725c7 *man/nplplot.Rd
 9d4dc08d51deef3d2c0b081bf13d78d1 *man/nplplot.multi.Rd
 d447cfb32ef3771ea0b0ec11cf8c7f5a *man/nplplot.old.Rd
-b44954174d8778f56821ad989c496016 *man/prepareplot.Rd
+a45a92840f1719c65fe2d79ba8d24d43 *man/prepareplot.Rd
 33d07c21d1a56dc9a91e662373f66f29 *tests/RALLEGRO.07
 d3c6d803da286787e221412a17d31398 *tests/RALLEGRO.07.hdr
 af5dc9952909e8fe5ed54b685c3133c2 *tests/Rallegro.07.R
-6d6a91a8137a45b14c087bd0e9356bcf *tests/Rallegro.07.Rout
+576796500c580b5b3108ea09a0e69487 *tests/Rallegro.07.Rout.save

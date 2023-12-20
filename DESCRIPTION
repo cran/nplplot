@@ -1,6 +1,6 @@
 Package: nplplot
-Version: 4.6
-Date: 2022-05-18
+Version: 4.7
+Date: 2023-12-20
 Title: Plotting Linkage and Association Results
 Author: Robert V Baron <rvb5@pitt.edu>, Nandita Mukhopadhyay,
         Xinyu Tang, Daniel E. Weeks <weeks@pitt.edu>
@@ -17,6 +17,6 @@ License: GPL (>= 3)
 URL: https://watson.hgen.pitt.edu/register/
 NeedsCompilation: no
 RoxygenNote: 7.1.2
-Packaged: 2022-05-18 21:43:08 UTC; dweeks
+Packaged: 2023-12-20 23:03:33 UTC; dweeks
 Repository: CRAN
-Date/Publication: 2022-05-18 22:30:03 UTC
+Date/Publication: 2023-12-20 23:20:05 UTC
